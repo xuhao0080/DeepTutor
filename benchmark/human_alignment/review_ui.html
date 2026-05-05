@@ -620,11 +620,18 @@
       function selectItem(index) {
         saveCurrent();
         if (!state.items.length) return;
+        const previous = state.current;
         state.current = Math.max(0, Math.min(index, state.items.length - 1));
         render();
+        if (state.current !== previous) scrollPairToTop();
         persist();
       }
       function render() { renderSidebar(); renderContent(); renderScoreForm(); }
+      function scrollPairToTop() {
+        window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        els.content.scrollTop = 0;
+        document.querySelectorAll(".side").forEach((panel) => { panel.scrollTop = 0; });
+      }
       function renderSidebar() {
         const total = state.items.length;
         const done = state.items.filter((item) => isComplete(item.pair_id)).length;
