@@ -214,8 +214,9 @@ def main() -> None:
     parser.add_argument("--judge-concurrency", type=int, default=DEFAULT_JUDGE_CONCURRENCY, help="Concurrent live judge calls")
     parser.add_argument("--judge-max-tokens", type=int, default=1800, help="Max tokens per live judge response")
     parser.add_argument("--judge-output", default="", help="Live judge JSON output")
-    parser.add_argument("--limit-pairs", type=int, default=0, help="Debug: live judge only first N annotated pairs")
+    parser.add_argument("--limit-pairs", type=int, default=0, help="Debug: live judge only first N selected pairs")
     parser.add_argument("--metrics", default="", help="Comma-separated metric codes to judge/plot, e.g. SF or SF,PER")
+    parser.add_argument("--judge-all-pairs", action="store_true", help="Judge every pair in annotation_package.jsonl, including pairs without human labels")
     parser.add_argument("--quiet", action="store_true", help="Suppress live judge progress logs")
     parser.add_argument("--tie-threshold", type=float, default=0.25, help="LLM score delta treated as tie")
     parser.add_argument("--output", default="", help="Output SVG path")
@@ -237,7 +238,8 @@ def main() -> None:
         summary_path = key_path.parent / "human_alignment_summary.json"
         if args.llm_source == "live":
             package_path = Path(args.package) if args.package else key_path.parent / "annotation_package.jsonl"
-            judge_output_path = Path(args.judge_output) if args.judge_output else key_path.parent / "live_llm_judgments.json"
+            default_judge_name = "live_llm_judgments_all_pairs.json" if args.judge_all_pairs else "live_llm_judgments.json"
+            judge_output_path = Path(args.judge_output) if args.judge_output else key_path.parent / default_judge_name
             summary = summarize_with_live_judge(
                 annotations_path=Path(args.annotations),
                 key_path=key_path,
@@ -252,6 +254,7 @@ def main() -> None:
                 max_tokens=args.judge_max_tokens,
                 limit_pairs=args.limit_pairs,
                 metric_codes=metric_codes,
+                judge_all_pairs=args.judge_all_pairs,
                 verbose=not args.quiet,
             )
         else:

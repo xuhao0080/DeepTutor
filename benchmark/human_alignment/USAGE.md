@@ -260,13 +260,28 @@ python3 -m benchmark.human_alignment.plot_alignment \
 
 多个指标用逗号分隔，例如 `--metrics SF,PER,APP`。
 
-会额外输出：
+如果想让 LLM 评全部 package pairs，包括人类还没标注的 pair，加 `--judge-all-pairs`。这个模式默认把原始 LLM 判断写到
+`live_llm_judgments_all_pairs.json`，不会覆盖常规的 `live_llm_judgments.json`：
+
+```bash
+python3 -m benchmark.human_alignment.plot_alignment \
+  --annotations benchmark/data/bench_pipeline/human_alignment_pairwise/completed_annotations_all.csv \
+  --key benchmark/data/bench_pipeline/human_alignment_pairwise/annotation_key.json \
+  --judge-all-pairs \
+  --judge-concurrency 8 \
+  --output benchmark/data/bench_pipeline/human_alignment_pairwise/human_alignment_preference_alignment_all_pairs.svg
+```
+
+注意：summary/plot 里的 human-vs-LLM alignment 仍然只能基于已经有人类标签的 pair 计算；未被人类标注的 pair 会保存在 `live_llm_judgments_all_pairs.json` 里，作为原始 LLM preference 数据。
+
+常规模式会额外输出：
 
 ```text
 live_llm_judgments.json
 ```
 
-其中保存 Claude 对每个 pair/metric 的 A/B/tie 判断和简短理由。
+其中保存 Claude 对每个 pair/metric 的 A/B/tie 判断、简短理由和原始返回。`--judge-all-pairs` 模式则默认输出
+`live_llm_judgments_all_pairs.json`，便于保留未标注 pair 的原始 LLM preference 数据。
 
 如果已经先跑过现场 judge + summary，也可以直接从 `human_alignment_summary.json` 画图，不再调用 LLM：
 

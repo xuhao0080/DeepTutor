@@ -179,6 +179,14 @@ python3 -m benchmark.human_alignment.plot_alignment \
   --annotations benchmark/data/bench_pipeline/human_alignment_pairwise/completed_annotations.csv \
   --key benchmark/data/bench_pipeline/human_alignment_pairwise/annotation_key.json \
   --output benchmark/data/bench_pipeline/human_alignment_pairwise/human_alignment_preference_alignment.svg
+
+# Optional: judge every package pair, including pairs without human labels.
+# Raw live preferences are preserved separately as live_llm_judgments_all_pairs.json.
+python3 -m benchmark.human_alignment.plot_alignment \
+  --annotations benchmark/data/bench_pipeline/human_alignment_pairwise/completed_annotations.csv \
+  --key benchmark/data/bench_pipeline/human_alignment_pairwise/annotation_key.json \
+  --judge-all-pairs \
+  --output benchmark/data/bench_pipeline/human_alignment_pairwise/human_alignment_preference_alignment_all_pairs.svg
 ```
 
 Outputs:
@@ -189,6 +197,8 @@ Outputs:
 - `annotation_key.json`: private mapping from annotation IDs to backend/eval files
 - `live_llm_judgments.json`: live LLM A/B/tie preferences and brief rationales;
   live judge calls are run separately for each metric
+- `live_llm_judgments_all_pairs.json`: raw live LLM preferences when
+  `--judge-all-pairs` is used; includes pairs that do not yet have human labels
 - `human_alignment_summary.json/.md`: per-metric DeepTutor preference rates,
   LLM preference rates, agreement, kappa, tie rates, and inter-rater agreement
 - `human_alignment_preference_alignment.svg`: stacked human-vs-LLM preference plot
