@@ -981,6 +981,7 @@ class TutorBotManager:
                     channels=data.get("channels", {}),
                     model=data.get("model"),
                     llm_selection=data.get("llm_selection"),
+                    allow_shell_exec=data.get("allow_shell_exec", False),
                 )
                 await self.start_bot(bid, config)
                 logger.info("Auto-started bot '%s'", bid)
