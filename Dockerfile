@@ -414,40 +414,9 @@ RUN pip install --no-cache-dir \
     black \
     ruff
 
-# Override supervisord config for development (with reload)
-# Log output goes to stdout/stderr so docker logs can capture them
-RUN cat > /etc/supervisor/conf.d/deeptutor.conf <<'EOF'
-[supervisord]
-nodaemon=true
-logfile=/dev/null
-logfile_maxbytes=0
-pidfile=/var/run/supervisord.pid
-
-[program:backend]
-command=python -m uvicorn deeptutor.api.main:app --host 0.0.0.0 --port %(ENV_BACKEND_PORT)s --reload
-directory=/app
-autostart=true
-autorestart=true
-stdout_logfile=/dev/fd/1
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/fd/2
-stderr_logfile_maxbytes=0
-environment=PYTHONPATH="/app",PYTHONUNBUFFERED="1"
-
-[program:frontend]
-command=/bin/bash -c "cd /app/web && node node_modules/next/dist/bin/next dev -H 0.0.0.0 -p ${FRONTEND_PORT:-3782}"
-directory=/app/web
-autostart=true
-autorestart=true
-startsecs=5
-stdout_logfile=/dev/fd/1
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/fd/2
-stderr_logfile_maxbytes=0
-environment=NODE_ENV="development"
-EOF
-
-RUN sed -i 's/\r$//' /etc/supervisor/conf.d/deeptutor.conf
+# Override backend command for development (with reload)
+# Keep frontend config from production stage
+RUN sed -i 's|command=/bin/bash /app/start-backend.sh|command=python -m uvicorn deeptutor.api.main:app --host 0.0.0.0 --port %(ENV_BACKEND_PORT)s --reload|' /etc/supervisor/conf.d/deeptutor.conf
 
 # Development ports
 EXPOSE 8001 3782
